@@ -24,14 +24,6 @@
     (canny img #:heigh heigh #:low low)))
 (provide flomap-canny)
 
-(: fmatan (-> flomap flomap flomap))
-(define (fmatan fm1 fm2)
-  (inline-build-flomap
-   (flomap-components fm1) (flomap-width fm1) (flomap-height fm1)
-   (λ (k x y i)
-     (atan (flomap-ref fm1 k x y)
-           (flomap-ref fm2 k x y)))))
-
 (define-type Orient (Array (U 'horizontal 'positive-diagonal 'vertical 'negative-diagonal)))
 (: tanθ->orient (-> flomap Orient))
 (define (tanθ->orient fm)
