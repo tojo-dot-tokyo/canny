@@ -13,14 +13,13 @@
         (* (flomap-ref img 3 x y) 0.114)))))
 
 (: flomap-canny (-> flomap #:sigma Flonum #:heigh Flonum #:low Flonum flomap))
-(define flomap-canny
-  (λ (img #:sigma sigma #:heigh heigh #:low low)
-    (let ([img
-           (case (flomap-components img)
-             [(4) (flomap-grayscale img)]
-             [(1) img]
-             [else (error "flomap-canny: invalid components")])])
-      (canny img sigma heigh low))))
+(define (flomap-canny img #:sigma sigma #:heigh heigh #:low low)
+  (let ([img
+         (case (flomap-components img)
+           [(4) (flomap-grayscale img)]
+           [(1) img]
+           [else (error "flomap-canny: invalid components")])])
+    (canny img sigma heigh low)))
 (provide flomap-canny)
 
 (define-type Orient (Array (U 'horizontal 'positive-diagonal 'vertical 'negative-diagonal)))
@@ -65,18 +64,17 @@
            (error "error")])))))
 
 (: canny (-> flomap Flonum Flonum Flonum flomap))
-(define canny
-  (lambda (fm sigma heigh low)
-    (let* ([w (flomap-width fm)]
-           [h (flomap-height fm)]
-           [b (flomap-gaussian-blur fm sigma)]
-           [sx (flomap-gradient-x b)]
-           [sy (flomap-gradient-y b)]
-           [mag (fmsqrt (fm+ (fmsqr sx) (fmsqr sy)))]
-           [ori (tanθ->orient (fm/ sx sy))]
-           [vec (make-flvector (* w h) -1.0)])
-      (for* ([y (in-range h)]
-             [x (in-range w)])
-        (when (<= heigh (flomap-ref mag 0 x y))
-          (trace! vec mag ori w h x y low)))
-      (flomap vec 1 w h))))
+(define (canny fm sigma heigh low)
+  (let* ([w (flomap-width fm)]
+         [h (flomap-height fm)]
+         [b (flomap-gaussian-blur fm sigma)]
+         [sx (flomap-gradient-x b)]
+         [sy (flomap-gradient-y b)]
+         [mag (fmsqrt (fm+ (fmsqr sx) (fmsqr sy)))]
+         [ori (tanθ->orient (fm/ sx sy))]
+         [vec (make-flvector (* w h) -1.0)])
+    (for* ([y (in-range h)]
+           [x (in-range w)])
+      (when (<= heigh (flomap-ref mag 0 x y))
+        (trace! vec mag ori w h x y low)))
+    (flomap vec 1 w h)))
